@@ -344,7 +344,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		128.0f, //radius
 		0.0f,
 
-		5.0f, //speed
+		20.0f, //speed
 		5.0f, //defSpeed
 
 		true,
@@ -392,7 +392,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			64.0f,
 			0.0f,
 
-			3.0f,
+			2.0f,
 			3.0f,
 
 			false,
@@ -616,6 +616,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 							chargePower = maxPower;
 
 						}
+
+						#pragma region エフェクトの処理(チャージ中)
 						/******** チャージエフェクト **********/
 						for (int i = 0; i < chargeEffectMax; i++)
 						{
@@ -672,6 +674,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 								}
 							}
 						}
+					#pragma endregion
 					}
 					else {
 
@@ -689,7 +692,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 							isAttacking = false;
 
 						}
-
+						#pragma region エフェクトの処理
 						//動いた時にエフェクトを薄くしていく
 						for (int i = 0; i < chargeEffectMax; i++)
 						{
@@ -704,6 +707,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 								}
 							}
 						}
+						#pragma endregion
 					}
 
 					if (theta >= 6.0f) {
@@ -739,6 +743,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						playerAttackRange.y = player.translate.y - playerPreTranslate.y;
 
 						chargePower--;
+						#pragma region 残像の処理
 						//残像
 						for (int i = 0; i < afterimageMax; i++)
 						{
@@ -776,7 +781,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 							}
 						}
 					}
-					
+					#pragma endregion
 		#pragma endregion
 		#pragma region コンボ
 
@@ -903,7 +908,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 								{
 								case FOLLOW:
 
-									enemy[i].theta = atan2(player.translate.y - enemy[i].translate.y, player.translate.x - enemy[i].translate.x);
+									enemy[i].theta = atan2(ally.translate.y - enemy[i].translate.y, ally.translate.x - enemy[i].translate.x);
 
 									if (enemy[i].theta <= 0) {
 
@@ -1045,6 +1050,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 						}
 
 					}
+		#pragma endregion
+
+		#pragma region 味方
+					ally.theta = atan2(player.translate.y - ally.translate.y, player.translate.x - ally.translate.x);
+
+					if (ally.theta <= 0) {
+
+						ally.theta *= -1;
+
+					}
+					else {
+
+						float def = M_PI - ally.theta;
+
+						ally.theta = def + M_PI;
+
+					}
+
+					ally.translate.x += (cosf(ally.theta) * ally.speed);
+					ally.translate.y += -(sinf(ally.theta) * ally.speed);
 		#pragma endregion
 
 			break;
@@ -1201,7 +1226,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 #pragma endregion
-		#pragma region エフェクト
+
+		#pragma region エフェクト描画
 			/******** 残像 **********/
 			for (int i = 0; i < afterimageMax; i++)
 			{
@@ -1266,6 +1292,35 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 			}
 		#pragma endregion
+
+
+#pragma region 味方描画
+			/******** 味方描画 **********/
+			Novice::DrawQuad(
+
+				worldPosOrigin.x + ally.translate.x - ally.radius / 2 - scrool.x,
+				worldPosOrigin.y - ally.translate.y - ally.radius / 2 + scrool.y,
+
+				worldPosOrigin.x + ally.translate.x + ally.radius / 2 - scrool.x,
+				worldPosOrigin.y - ally.translate.y - ally.radius / 2 + scrool.y,
+
+				worldPosOrigin.x + ally.translate.x - ally.radius / 2 - scrool.x,
+				worldPosOrigin.y - ally.translate.y + ally.radius / 2 + scrool.y,
+
+				worldPosOrigin.x + ally.translate.x + ally.radius / 2 - scrool.x,
+				worldPosOrigin.y - ally.translate.y + ally.radius / 2 + scrool.y,
+
+				0,
+				0,
+
+				ally.graphRadius,
+				ally.graphRadius,
+
+				ally.graph,
+				ally.color
+
+			);
+#pragma endregion
 
 		#pragma region プレイヤー描画
 
